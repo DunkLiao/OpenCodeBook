@@ -1,0 +1,150 @@
+技術文件翻譯測試
+
+概述
+
+此範例檔案用於測試「英文轉繁體中文」的技術文件翻譯 Agent。
+
+翻譯器應保留技術術語、檔案名稱、命令列指令、URL、JSON key、環境變數與程式碼區塊。
+
+安裝
+
+使用 npm 安裝此套件：
+
+npm install example-cli
+
+接著驗證安裝：
+
+example-cli --version
+
+設定
+
+建立一個名為 config.json 的設定檔，內容如下：
+
+{
+  "apiKey": "YOUR_API_KEY",
+  "baseURL": "https://api.example.com",
+  "timeout": 30000,
+  "enableCache": true
+}
+
+請勿重新命名 JSON key。
+
+環境變數
+
+在啟動應用程式之前，請設定下列環境變數：
+
+EXAMPLE_API_KEY=your_api_key_here
+
+在 Windows PowerShell 上：
+
+$env:EXAMPLE_API_KEY="your_api_key_here"
+
+在 macOS 或 Linux 上：
+
+export EXAMPLE_API_KEY="your_api_key_here"
+
+使用方式
+
+執行 CLI：
+
+example-cli run --input docs/sample.md --output result.json
+
+`--input` 選項指定來源檔案。
+`--output` 選項指定目的檔案。
+
+API 範例
+
+傳送 POST 要求至：
+
+https://api.example.com/v1/tasks
+
+要求主體範例：
+
+{
+  "model": "example-model-v2",
+  "temperature": 0.2,
+  "max_tokens": 2048
+}
+
+若要求被接受，伺服器會回傳一個 task ID。
+
+錯誤處理
+
+若 API 回傳 HTTP 401，請確認你的 API key 是否有效。
+
+若 API 回傳 HTTP 429，代表要求速率可能已超過服務限制。
+
+若 API 回傳 HTTP 500，請稍後重試此要求，並檢查服務狀態頁面。
+
+重要注意事項
+
+請勿在原始碼中暴露 API key。
+
+請勿將 .env 檔案提交至 Git 儲存庫。
+
+請使用環境變數或密鑰管理服務（secret management service）來存放認證資訊。
+
+術語測試
+
+下列術語用於測試翻譯一致性：
+
+- 相依性注入（dependency injection）
+- 中介軟體（middleware）
+- 執行環境（runtime）
+- 部署（deployment）
+- 儲存庫（repository）
+- 快取（cache）
+- 身分驗證（authentication）
+- 授權（authorization）
+- 認證資訊（credentials）
+- 端點（endpoint）
+- 承載資料（payload）
+- 速率限制（rate limit）
+- 重試機制（retry mechanism）
+- 備援策略（fallback strategy）
+
+類 Markdown 內容
+
+# 範例標題
+
+## 子標題
+
+此段落包含一個 Markdown 連結：
+
+[範例文件](https://docs.example.com)
+
+而此處的行內程式碼應保持不變：
+
+`default_agent`
+
+程式碼範例
+
+```javascript
+async function createTask(client) {
+  const result = await client.tasks.create({
+    model: "example-model-v2",
+    temperature: 0.2
+  });
+
+  return result.id;
+}
+```
+
+請勿翻譯函式名稱、變數名稱、物件 key，或屬於技術識別字的字串值。
+
+翻譯品質檢查
+
+一份良好的翻譯應：
+
+1. 使用繁體中文。
+2. 優先採用台灣常用術語。
+3. 保留技術含義。
+4. 保持指令不變。
+5. 保持 URL 不變。
+6. 保持 JSON key 不變。
+7. 保持環境變數名稱不變。
+8. 保持程式碼區塊不變。
+9. 避免過度直譯。
+10. 若台灣有常用對應術語，避免使用簡體中文術語。
+
+測試檔案結束。

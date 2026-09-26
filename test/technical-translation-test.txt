@@ -1,0 +1,150 @@
+Technical Documentation Translation Test
+
+Overview
+
+This sample file is designed to test an English-to-Traditional-Chinese technical documentation translation agent.
+
+The translator should preserve technical terms, file names, command-line instructions, URLs, JSON keys, environment variables, and code blocks.
+
+Installation
+
+Install the package with npm:
+
+npm install example-cli
+
+Then verify the installation:
+
+example-cli --version
+
+Configuration
+
+Create a configuration file named config.json with the following content:
+
+{
+  "apiKey": "YOUR_API_KEY",
+  "baseURL": "https://api.example.com",
+  "timeout": 30000,
+  "enableCache": true
+}
+
+Do not rename the JSON keys.
+
+Environment Variables
+
+Set the following environment variable before starting the application:
+
+EXAMPLE_API_KEY=your_api_key_here
+
+On Windows PowerShell:
+
+$env:EXAMPLE_API_KEY="your_api_key_here"
+
+On macOS or Linux:
+
+export EXAMPLE_API_KEY="your_api_key_here"
+
+Usage
+
+Run the CLI with:
+
+example-cli run --input docs/sample.md --output result.json
+
+The --input option specifies the source file.
+The --output option specifies the destination file.
+
+API Example
+
+Send a POST request to:
+
+https://api.example.com/v1/tasks
+
+Example request body:
+
+{
+  "model": "example-model-v2",
+  "temperature": 0.2,
+  "max_tokens": 2048
+}
+
+The server returns a task ID if the request is accepted.
+
+Error Handling
+
+If the API returns HTTP 401, verify that your API key is valid.
+
+If the API returns HTTP 429, the request rate may have exceeded the service limit.
+
+If the API returns HTTP 500, retry the request later and check the service status page.
+
+Important Notes
+
+Do not expose API keys in source code.
+
+Do not commit .env files to Git repositories.
+
+Use environment variables or a secret management service to store credentials.
+
+Terminology Test
+
+The following terms are included to test translation consistency:
+
+- dependency injection
+- middleware
+- runtime
+- deployment
+- repository
+- cache
+- authentication
+- authorization
+- credentials
+- endpoint
+- payload
+- rate limit
+- retry mechanism
+- fallback strategy
+
+Markdown-Like Content
+
+# Sample Heading
+
+## Subheading
+
+This paragraph contains a Markdown link:
+
+[Example Documentation](https://docs.example.com)
+
+And this inline code should remain unchanged:
+
+`default_agent`
+
+Code Example
+
+```javascript
+async function createTask(client) {
+  const result = await client.tasks.create({
+    model: "example-model-v2",
+    temperature: 0.2
+  });
+
+  return result.id;
+}
+```
+
+Do not translate function names, variable names, object keys, or string values that are technical identifiers.
+
+Translation Quality Check
+
+A good translation should:
+
+1. Use Traditional Chinese.
+2. Prefer terminology commonly used in Taiwan.
+3. Preserve technical meaning.
+4. Keep commands unchanged.
+5. Keep URLs unchanged.
+6. Keep JSON keys unchanged.
+7. Keep environment variable names unchanged.
+8. Keep code blocks unchanged.
+9. Avoid overly literal translation.
+10. Avoid Simplified Chinese terminology where a common Taiwan equivalent exists.
+
+End of test file.
