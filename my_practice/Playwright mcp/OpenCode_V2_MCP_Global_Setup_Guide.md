@@ -4,6 +4,11 @@
 > 目標：將常用 MCP 設定為 **Global**，讓所有專案都能直接使用。  
 > 本文件整理並彙總此次已驗證的 DeepWiki、Microsoft Playwright MCP 與 Chrome DevTools MCP 設定方式。
 
+> [!IMPORTANT]
+> **後續更新：** 本文件部分設定（`playwright` 的 `-y`、`@latest` 版本、startup timeout）
+> 已由 **[OpenCode_V2_MCP_Timeout_Fix.md](./OpenCode_V2_MCP_Timeout_Fix.md)** 更正。
+> 本文仍保留原始紀錄作為對照，遇到 `failed: Request timed out` 請看新文件的排查 SOP。
+
 ---
 
 ## 1. 為什麼建議使用 Global MCP？
@@ -163,6 +168,17 @@ npx @playwright/mcp@latest
 
 官方文件建議 Node.js 20 或更新版本。
 
+> [!IMPORTANT]
+> **本節部分內容已由後續文件更正。**
+> 請一併閱讀：**[OpenCode_V2_MCP_Timeout_Fix.md](./OpenCode_V2_MCP_Timeout_Fix.md)**
+>
+> 更正重點：
+> 1. `playwright` 指令**應該加上 `-y`**（見本節「為什麼沒有加 `-y`？」的更正說明）。
+> 2. 套件版本建議**釘死**（例如 `@0.0.82`），不要用 `@latest`。
+> 3. 建議設定 `mcp.timeout.startup`（例如 `60000`）。
+>
+> 若遇到 `failed: Request timed out`，請直接看新文件的排查 SOP。
+
 ## 已驗證可用的 OpenCode Global CLI 指令
 
 在此次 Windows / OpenCode 環境中，以下方式已成功：
@@ -184,6 +200,17 @@ opencode mcp list
 ```
 
 ## 為什麼沒有加 `-y`？
+
+> [!NOTE]
+> **此段落已被更正。** 結論是：`playwright` **應該加上 `-y`**。
+>
+> 當時的錯誤原因是 `opencode mcp add` 這個 **CLI 指令**把 `-y` 誤判成 OpenCode 自己的參數。
+> 但只要**直接編輯 `opencode.jsonc`**，`-y` 寫在 `command` 陣列裡就不會經過 CLI 解析，
+> 因此可以（也應該）安心加上。
+>
+> 詳細原因與完整修正紀錄請見
+> **[OpenCode_V2_MCP_Timeout_Fix.md](./OpenCode_V2_MCP_Timeout_Fix.md)**。
+> 以下為當時的原始紀錄，保留作為對照。
 
 原本嘗試：
 
@@ -220,6 +247,26 @@ npx @playwright/mcp@latest
         "command": [
           "npx",
           "@playwright/mcp@latest"
+        ]
+      }
+    }
+  }
+}
+```
+
+### 建議寫法（已更正）
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "playwright": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@playwright/mcp@0.0.82"
         ]
       }
     }
