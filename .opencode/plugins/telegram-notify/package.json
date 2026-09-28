@@ -1,0 +1,19 @@
+{
+  "name": "opencode-plugin-telegram-notify",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenCode V2 plugin that sends Telegram notifications when the agent finishes, needs confirmation, needs input, or errors.",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:send": "bun test-send.ts"
+  },
+  "devDependencies": {
+    "@opencode/plugin": "2.0.18",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.6.0"
+  }
+}
