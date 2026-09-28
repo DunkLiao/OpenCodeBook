@@ -78,8 +78,23 @@
 | 文件 | 說明 |
 | --- | --- |
 | [`Harness/AI_Harness_組成與實務架構.md`](my_practice/Harness/AI_Harness_組成與實務架構.md) | Harness 的組成要素與實務架構 |
+| [`Harness/opencode-v2-tools-agent-harness-guide.md`](my_practice/Harness/opencode-v2-tools-agent-harness-guide.md) | OpenCode V2 內建工具與 Agent Harness 分層設計指南 |
 | [`Harness/Harness_五種反模式.md`](my_practice/Harness/Harness_五種反模式.md) | 五種常見反模式與修正方式 |
 | [`Harness/駕馭者檢核表 (The Driver's Checklist for AI Agents).md`](my_practice/Harness/駕馭者檢核表%20%28The%20Driver%27s%20Checklist%20for%20AI%20Agents%29.md) | 交派任務前的檢核清單 |
+
+另附可直接下載的範例包 [`Harness/opencode_harness_files.zip`](my_practice/Harness/opencode_harness_files.zip)（內含 `AGENTS.md` 與 `CLAUDE.md`）。
+
+### Sample 專案 Harness 教材（`my_practice/Sample/`）
+
+以「浮動桌面助手（`py_assistant_desktop`）」為例，示範如何用 `PRD.md` 加上 `.harness/` 狀態檔驅動 Agent 工作，是「Harness 思維」與「AGENTS.md 專案規範」的完整落地範例。
+
+| 文件 | 說明 |
+| --- | --- |
+| [`Sample/PRD.md`](my_practice/Sample/PRD.md) | 產品需求文件（SSOT）範例：FR／NFR／AC／E2E 與需求追溯矩陣 |
+| [`Sample/AGENTS.md`](my_practice/Sample/AGENTS.md) | 專案層 Agent 行為規範：PRD 為唯一需求來源、Session 啟動／結束協定、完成定義 |
+| [`Sample/CLAUDE.md`](my_practice/Sample/CLAUDE.md) | 以 `@AGENTS.md` 匯入共用規則，維持 Claude Code 與 OpenCode 一致 |
+| [`Sample/.harness/progress.yaml`](my_practice/Sample/.harness/progress.yaml) | 機器可讀的進度追蹤：需求／任務狀態與驗證結果 |
+| [`Sample/.harness/handoff.yaml`](my_practice/Sample/.harness/handoff.yaml) | 跨 Session 交接狀態：決策、驗證與下一步 |
 
 ### MCP 整合
 
@@ -140,6 +155,7 @@
 
 | Skill | 用途 |
 | --- | --- |
+| [`debugging-methodology`](.opencode/skills/debugging-methodology/SKILL.md) | 以假設驅動的系統化根因分析流程除錯，避免盲目改碼 |
 | [`git-commit-push`](.opencode/skills/git-commit-push/SKILL.md) | 檢查變更、草擬訊息、機密安全檢查後 commit 並 push |
 | [`playwright-test`](.opencode/skills/playwright-test/SKILL.md) | 以 playwright-cli 對臺灣房價地圖網站進行端到端回歸測試 |
 
