@@ -40,13 +40,16 @@
 
 | 事件 `type` | 觸發時機 | 通知 |
 | --- | --- | --- |
-| `session.idle` | Agent 完成工作、進入等待 | ✅ OpenCode 任務已完成 |
+| `session.execution.succeeded` | Agent 完成一輪工作 | ✅ OpenCode 任務已完成 |
+| `session.idle` / `session.status`（`status.type === "idle"`） | 同上（僅為備援） | ✅ OpenCode 任務已完成 |
 | `permission.asked` | 需要批准 / 授權操作 | ⚠️ OpenCode 等待確認 |
 | `permission.replied` | 使用者已回覆權限 | （僅清除待確認狀態，不通知） |
 | `form.created` | OpenCode 需要使用者輸入 | 📝 OpenCode 需要你的輸入 |
-| `session.error` | Session 發生錯誤 | ❌ OpenCode 執行發生錯誤 |
+| `session.execution.failed` / `session.error` | 執行發生錯誤 | ❌ OpenCode 執行發生錯誤 |
 
 > 這些事件名稱取自 OpenCode V2 的公開事件流定義（與官方文件 `session.idle` 範例同一組 API），非自行假設。
+>
+> 實測 V2 事件流**不會**把 `session.idle` / `session.status` 送達外掛，可靠的「一輪結束」訊號是 `session.execution.succeeded`（失敗為 `session.execution.failed`）。這些事件共用同一個去重 key，即使同時收到也不會重複通知。
 
 ---
 

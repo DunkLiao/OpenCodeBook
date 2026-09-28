@@ -17,11 +17,13 @@ import { getTelegramConfig, sendTelegramMessage } from "./telegram"
  * needs confirmation, needs input, or hits an error.
  *
  * Detection is based entirely on the public V2 event stream (`ctx.event.subscribe`):
- * - `session.idle`        -> task completed / idle
+ * - `session.execution.succeeded` -> task completed / idle (the reliable signal; the
+ *                            `session.idle` / `session.status` events are not delivered
+ *                            to plugins, so they are kept only as fallbacks)
  * - `permission.asked`    -> waiting for confirmation/approval
  * - `permission.replied`  -> clears the pending state
  * - `form.created`        -> waiting for user input
- * - `session.error`       -> execution error
+ * - `session.execution.failed` -> execution error
  *
  * The plugin never throws into OpenCode and never blocks the event loop.
  */
@@ -136,26 +138,44 @@ const plugin: Plugin.Plugin = {
       return { id, title: info?.title, agent: info?.agent, outcome: info?.outcome }
     }
 
+    /**
+     * Report a session that finished its turn. Reached from `session.idle` and from
+     * `session.status` with `status.type === "idle"`; they share one dedupe key so a
+     * session that emits both does not notify twice.
+     */
+    const handleIdle = async (sessionID: string | undefined): Promise<void> => {
+      if (sessionID) {
+        const pendingAt = pendingPermissions.get(sessionID)
+        if (pendingAt !== undefined) {
+          if (Date.now() - pendingAt < PENDING_PERMISSION_TTL_MS) return // still waiting for the user
+          pendingPermissions.delete(sessionID)
+        }
+      }
+
+      const info = await getSessionInfo(sessionID)
+      if (info?.parentID && !options.notifySubagents) return // subagent sessions are noisy
+      const summary = toSummary(info, sessionID)
+      notify(`idle:${sessionID ?? "unknown"}`, () => buildIdleMessage(projectName, summary))
+    }
+
     const handleEvent = async (event: unknown): Promise<void> => {
       const type = (event as { type?: string } | null | undefined)?.type
       const data = asData(event)
 
       switch (type) {
+        case "session.execution.succeeded":
         case "session.idle": {
-          const sessionID = typeof data.sessionID === "string" ? data.sessionID : undefined
+          // `session.execution.succeeded` is what the V2 event stream actually emits
+          // when a turn finishes; `session.idle` is kept as a fallback.
+          await handleIdle(typeof data.sessionID === "string" ? data.sessionID : undefined)
+          return
+        }
 
-          if (sessionID) {
-            const pendingAt = pendingPermissions.get(sessionID)
-            if (pendingAt !== undefined) {
-              if (Date.now() - pendingAt < PENDING_PERMISSION_TTL_MS) return // still waiting for the user
-              pendingPermissions.delete(sessionID)
-            }
-          }
-
-          const info = await getSessionInfo(sessionID)
-          if (info?.parentID && !options.notifySubagents) return // subagent sessions are noisy
-          const summary = toSummary(info, sessionID)
-          notify(`idle:${sessionID ?? "unknown"}`, () => buildIdleMessage(projectName, summary))
+        case "session.status": {
+          // Fallback only: a `session.status` transition to idle, if one is delivered.
+          const status = (data.status ?? {}) as Record<string, unknown>
+          if (status.type !== "idle") return
+          await handleIdle(typeof data.sessionID === "string" ? data.sessionID : undefined)
           return
         }
 
@@ -196,6 +216,7 @@ const plugin: Plugin.Plugin = {
           return
         }
 
+        case "session.execution.failed":
         case "session.error": {
           if (!options.notifyErrors) return
           const sessionID = typeof data.sessionID === "string" ? data.sessionID : undefined
