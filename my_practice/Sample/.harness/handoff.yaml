@@ -1,0 +1,167 @@
+schema_version: 1
+updated_at: "2026-09-28"
+
+session_summary: |
+  本 session 完成三件事，均未撰寫任何實作程式碼：
+  (1) Build Agent 就緒性稽核：檢視 PRD.md、AGENTS.md、CLAUDE.md、.harness/progress.yaml、.harness/handoff.yaml，
+      產出 25 項發現（1 阻斷 / 9 應修 / 15 次要）。
+  (2) 經使用者核准後套用 PRD v1.1 修正，並將 25 項發現全數結案。
+  (3) 依 git-commit-push 技能將專案納入 Git 版控（git init -b main）、加入 .gitignore、
+      推送至 origin/main；並將 PRD 更新為 v1.2 以修正 C-007 的版控狀態描述。
+  規劃階段已完成（planning.status = complete）；current_phase 已切換為 implementation，
+  但 implementation.status = not_started（尚未開始寫程式）。
+
+current_objective:
+  requirement_ids: ["FR-001", "FR-011", "FR-013", "NFR-006", "NFR-018"]
+  task_ids: ["TASK-031"]
+  description: |
+    PRD v1.2 已核准並生效，可以開始實作。
+    唯一下一步是等待使用者指示；一旦獲准，即自 M1 起步（先 TASK-031 建立骨架與 venv）。
+    本 session 不再變更任何檔案。
+
+completed_since_last_handoff:
+  - "完成 Build Agent 就緒性稽核（BLOCK-001 + AF-001~AF-025 共 25 項發現）"
+  - "以實測重現 BLOCK-001：含 platform/ 套件的目錄下執行 pytest 直接崩潰"
+  - "使用者核准 PRD v1.1：platform/ → platform_api/、補 AC-041~AC-054、AC-019 釐清、AC-029 擴充、§8.2 補列檔案、新增附錄 D"
+  - "PRD.md 已更新為 v1.1（附錄 B.5 記錄核准項；附錄 C 記錄 v1.1 變更）"
+  - "PRD.md 更新為 v1.2：修正 C-007（改為已納入 Git 版控、origin、預設分支 main）"
+  - "建立 .gitignore（Python 專用）並將專案 git init -b main、推送至 origin/main"
+  - "progress.yaml：planning.status = complete、current_phase = implementation、implementation.status = not_started"
+  - "progress.yaml：BLOCK-001 移至 resolved_blockers；25 項 audit_findings 全數附上 resolution"
+  - "progress.yaml：新增 TASK-031（骨架與依賴）、TASK-032（設定範圍）、TASK-033（字串抽離）、TASK-034（資源與識別碼）"
+  - "progress.yaml：所有 platform/ 路徑引用改為 platform_api/"
+  - "progress.yaml：prd_coverage 的 X-006 對應 AC-043/AC-044、X-008 對應 AC-045"
+
+in_progress:
+  description: |
+    無程式碼進行中。implementation.status = not_started，等待使用者指示後自 M1 開始。
+  files: []
+
+decisions:
+  - decision: "平台抽象層目錄為 platform_api/（不可使用 platform/）"
+    reason: >
+      BLOCK-001：platform/ 會遮蔽標準庫 platform 模組。實測於含 platform/__init__.py 的目錄執行
+      pytest 會直接崩潰（AttributeError: module 'platform' has no attribute 'python_implementation'），
+      違反 NFR-011 與 PRD §13。已寫入 PRD §8.2 / NFR-006 / 附錄 D D-000。
+    requirement_ids: ["NFR-006", "NFR-011", "NFR-018"]
+    status: "已核准並生效（PRD v1.1）"
+  - decision: "D-000 平台抽象層命名 platform_api/"
+    reason: "標準庫 platform 遮蔽問題"
+    requirement_ids: ["NFR-006"]
+    status: "已生效"
+  - decision: "D-001 設定範圍與預設值：面板寬 280–480（預設 360）、按鈕 32–96 px（預設 56）、透明度 0.3–1.0（預設 1.0）、按鈕與面板間距 8 px、預設位置主要螢幕右上角距邊 24 px"
+    reason: "FR-010.6 要求夾限但未定義範圍；AC-028/AC-050 需要可驗證數值"
+    requirement_ids: ["FR-010", "FR-001", "FR-002"]
+    status: "已生效"
+  - decision: "D-002 字串抽離：ui/strings.py 的 zh-TW 具名常數字串表，不引入 i18n 框架"
+    reason: "C-006 僅抽離、不翻譯；且不新增依賴"
+    requirement_ids: ["C-006"]
+    status: "已生效"
+  - decision: "D-003 資源置於 assets/（托盤 .ico、按鈕圖示、執行檔 icon）"
+    reason: "§8.2 未定義資源位置"
+    requirement_ids: ["FR-011", "FR-001"]
+    status: "已生效"
+  - decision: "D-004 應用程式識別碼 py_assistant_desktop（資料目錄、單一實例鎖名、開機自啟登錄值名稱）；執行檔名稱 FloatingAssistant.exe"
+    reason: "FR-012.2 / FR-013.1 需穩定具名識別碼；名稱由使用者在附錄 B.5 裁定"
+    requirement_ids: ["FR-012", "FR-013", "FR-014"]
+    status: "已生效（執行檔名稱：FloatingAssistant.exe）"
+  - decision: "D-005 手動觸發的重新整理（卡片按鈕、托盤『立即重新整理』）不受『面板收合時暫停』限制；僅定時抓取受限（AC-019 已同步限縮為『定時抓取』）"
+    reason: "FR-006.4 / FR-011.2 與 FR-006.5 / FR-007.8 字面衝突；使用者主動意圖優先"
+    requirement_ids: ["FR-006", "FR-007", "FR-011"]
+    status: "已生效"
+  - decision: "D-006 第二次啟動喚醒既有實例時：確保按鈕可見並置頂，且展開面板"
+    reason: "FR-013.2『將現有按鈕與面板帶到前景』"
+    requirement_ids: ["FR-013"]
+    status: "已生效"
+  - decision: "D-007 新增待辦插入未完成區頂部（order 最小）"
+    reason: "FR-009.7 未定義插入位置；使用者於附錄 B.5 裁定為頂部"
+    requirement_ids: ["FR-009"]
+    status: "已生效（使用者裁定：頂部）"
+  - decision: "D-008 點擊清單中的筆記即展開該筆就地編輯區；同一時間僅一筆展開"
+    reason: "FR-008.5 定義了就地編輯但未定義開啟互動"
+    requirement_ids: ["FR-008"]
+    status: "已生效"
+  - decision: "D-009 設定視窗為 application-modal 單一視窗；面板可見時以面板為母視窗，由托盤開啟且面板已收合時不指定母視窗"
+    reason: "FR-010.1 允許由托盤開啟，但 FR-010.4 要求模態"
+    requirement_ids: ["FR-010"]
+    status: "已生效"
+  - decision: "D-010 .corrupt-* 備份檔啟動時僅保留最近 5 份"
+    reason: "FR-014.4 未定義清理機制"
+    requirement_ids: ["FR-014"]
+    status: "已生效"
+  - decision: "D-011 磁碟清單用 psutil.disk_partitions(all=False) 並排除 fstype 含 cdrom/removable 者"
+    reason: "FR-007.5『本機固定磁碟』判定方式未定義"
+    requirement_ids: ["FR-007"]
+    status: "已生效"
+  - decision: "D-012 CPU 首次取樣丟棄首值（cpu_percent(interval=None)）"
+    reason: "psutil 首次呼叫必回 0，會誤顯示"
+    requirement_ids: ["FR-007"]
+    status: "已生效"
+  - decision: "D-013 12 小時制邊界：00:xx → 12:xx AM；12:xx → 12:xx PM"
+    reason: "FR-004.1 未定義午夜/正午邊界"
+    requirement_ids: ["FR-004"]
+    status: "已生效"
+  - decision: "D-014 托盤『顯示/隱藏面板』與浮動按鈕 toggle 共用同一面板展開狀態"
+    reason: "避免兩處狀態不一致"
+    requirement_ids: ["FR-002", "FR-011"]
+    status: "已生效"
+  - decision: "D-015 RSS『快取已過期』以最後成功更新時間 + 設定間隔判定（非請求發起時間）"
+    reason: "FR-006.3 未定義判定基準"
+    requirement_ids: ["FR-006"]
+    status: "已生效"
+  - decision: "高 DPI 採 Qt6 預設 PassThrough，保留可覆寫 HighDpiScaleFactorRoundingPolicy 的設定點"
+    reason: "NFR-007 要求 100%–200% 不縮放模糊；Qt6 預設已足夠"
+    requirement_ids: ["NFR-007"]
+    status: "已生效"
+  - decision: "背景工作以 typing.Protocol 定義注入介面（FeedFetcher、SystemProvider）"
+    reason: "NFR-011 要求可 mock；PRD 未定義簽章。實作時落地並記錄"
+    requirement_ids: ["NFR-011", "NFR-005"]
+    status: "待實作時落地"
+  - decision: "納入 Git 版控：git init -b main、origin = https://github.com/DunkLiao/py_assistant_desktop.git、建立 Python 專用 .gitignore"
+    reason: >
+      使用者提供遠端 URL 並要求 commit & push；遠端倉庫為空（ls-remote 無 ref），無 non-fast-forward 風險。
+      Git 身分已設定（DunkLiao / dicksskimo@yahoo.com.tw）。此決策使 PRD C-007 的原描述過時，故一併修正為 v1.2。
+    requirement_ids: ["C-007"]
+    status: "已生效"
+
+blockers: []
+
+verification:
+  passed:
+    - "YAML 語法驗證：progress.yaml 與 handoff.yaml 以 yaml.safe_load 解析成功"
+    - "交叉一致性檢查：progress.yaml 的 task 總數與 id 清單已核對；blockers 為空、resolved_blockers 保留 BLOCK-001 記錄"
+    - "依賴環境檢查：PySide6 6.9.2 / psutil 7.0.0 / httpx 0.28.1 / platformdirs 4.5.0 / pytest 8.4.2 可匯入"
+    - "BLOCK-001 修正驗證：PRD 全文已無以 platform/ 作為套件路徑的引用（僅保留警示文字與 platformdirs 套件名）"
+  failed: []
+  pending:
+    - "feedparser 與 pytest-qt 尚未安裝（TASK-031 處理；建議使用專案專屬 venv）"
+    - "所有 AC-001~AC-054 與 E2E-001~E2E-019 仍未驗證（尚無程式碼）"
+
+next_steps:
+  - "1. 等待使用者指示開始實作。"
+  - "2. TASK-031：建立 pyproject.toml / requirements.txt、tests/、assets/ 骨架，建立 venv 並安裝含 feedparser、pytest-qt 的依賴。"
+  - "3. TASK-028：建立 platform_api/ 抽象層（嚴禁命名為 platform/）。"
+  - "4. TASK-023 單一實例 → TASK-001~TASK-003 浮動按鈕 → TASK-021 托盤 → 完成 M1（AC-001/002/003/029/031）。"
+  - "5. 每個任務完成後更新 progress.yaml 的 status 與 verification，並同步本檔；未通過驗證不得標記 done。"
+
+important_context:
+  - "PRD.md 現為 v1.2；附錄 D 收錄 16 項實作決策 D-000~D-015（需求未定義但實作必須決定的細節）。"
+  - "PRD 全文的 AC 為 AC-001~AC-054；E2E 為 E2E-001~E2E-019。"
+  - "progress.yaml：current_phase=implementation、implementation.status=not_started、planning.status=complete。"
+  - "progress.yaml：34 個 requirement 條目（15 個 FR + 18 個 NFR + C-006）與 34 個 TASK；prd_coverage 對照 X-001~X-008。"
+  - "必修紅線：任何目錄/模組不得命名為 platform（會遮蔽標準庫）。"
+  - "執行環境：Python 3.13.9（Anaconda base，D:\\ProgramData\\anaconda3）；實作請用專案專屬 venv。"
+  - "已安裝：PySide6 6.9.2、psutil 7.0.0、httpx 0.28.1、platformdirs 4.5.0、pytest 8.4.2。未安裝：feedparser、pytest-qt。"
+  - "產品顯示名稱「浮動桌面助手」；執行檔 FloatingAssistant.exe；應用程式識別碼 py_assistant_desktop。"
+  - "版控：已納入 Git（origin https://github.com/DunkLiao/py_assistant_desktop.git，預設分支 main）；未經使用者明確授權不得執行 force-push、rebase、reset --hard 或 clean -fd（PRD C-007）。"
+  - "PRD.md 為 v1.2；.gitignore 已建立（忽略 __pycache__、.venv、build、dist、*.spec、*.log 等）。"
+
+do_not_assume:
+  - "不要建立名為 platform（或任何與標準庫模組同名）的套件或目錄。"
+  - "不要假設使用者已授權開始實作；目前 implementation.status = not_started，應先取得指示。"
+  - "不要為了讓測試通過而修改 PRD；需求變更一律先取得使用者核准。"
+  - "不要新增 PRD 未列出的功能（到期日、標籤、Markdown、已讀狀態、全域快速鍵、卡片顯示/隱藏開關、可攜模式、多語言）。"
+  - "不要使用全域滑鼠/鍵盤 hook（C-002）。"
+  - "不要假設資料需加密或需雲端同步（SEC-007、NG-001）。"
+  - "不要假設 macOS/Linux 需要實作或驗證（NG-004）。"
+  - "不要把平台專屬 API 直接寫進 core/（NFR-006 / NFR-018）。"

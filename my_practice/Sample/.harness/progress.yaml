@@ -1,0 +1,763 @@
+schema_version: 1
+project:
+  name: "py_assistant_desktop"
+  display_name: "浮動桌面助手"
+  prd: "PRD.md"
+
+current_phase: "implementation" # discovery | planning | implementation | verification | blocked | complete
+updated_at: "2026-09-28"
+
+implementation:
+  status: "not_started" # 尚未撰寫任何程式碼；等待使用者指示後自 M1 開始
+  entry_point: "M1 / TASK-031（專案骨架與依賴宣告）"
+
+planning:
+  status: "complete"
+  completed_at: "2026-09-28"
+  audit_date: "2026-09-28"
+  audit_scope: ["PRD.md", "AGENTS.md", "CLAUDE.md", ".harness/progress.yaml", ".harness/handoff.yaml"]
+  audit_result:
+    blocking: 1
+    should_fix: 9
+    minor: 15
+    total: 25
+    all_resolved: true
+  prd_version: "v1.2"
+  conclusion: >
+    稽核發現 25 項（1 阻斷 / 9 應修 / 15 次要）已全數處理：BLOCK-001 以 platform/ → platform_api/ 修正；
+    其餘以 PRD v1.1（補 AC-041~AC-054、AC-019 釐清、AC-029 擴充、§8.2 補列檔案）與
+    附錄 D（16 項實作決策 D-000~D-015）落地。技術架構、實作範圍、六大核心功能驗收條件、
+    E2E 範圍均已明確，規劃階段完成，可進入實作。
+
+# 注意：PRD.md 已於 2026-09-28 建立並經使用者核准（v1.0）。
+# 目前尚未開始實作；未經使用者指示不得開始撰寫程式碼。
+
+notes: |
+  - 需求文件 PRD.md v1.2 已完成（14 章 + 附錄 A/B/C/D）。
+  - 本階段交付範圍對應 PRD 第 3、4 章（含 X-001~X-008）。
+  - 僅實作/驗證 Windows（PRD C-001）；架構須保留平台抽象層 `platform_api/`
+    （**不可命名為 `platform/`**，會遮蔽標準庫，見 PRD 附錄 D D-000）。
+  - 版控：已 git init 並推送至 origin（github.com/DunkLiao/py_assistant_desktop，預設分支 main）；
+    PRD C-007 已同步修正。未經授權不得 force-push 或改寫歷史。
+  - 執行環境：Python 3.13.9（Anaconda base）；PySide6 6.9.2、psutil 7.0.0、httpx 0.28.1、
+    platformdirs 4.5.0、pytest 8.4.2 已安裝；feedparser 與 pytest-qt 尚未安裝（實作前須補）。
+    建議使用獨立 venv，避免污染 Anaconda base 環境。
+
+requirements:
+  - id: "FR-001"
+    title: "浮動按鈕"
+    status: "pending"
+    milestone: "M1"
+    tasks:
+      - id: "TASK-001"
+        description: "建立圓形無邊框浮動按鈕視窗（透明、圓角、嚴格置頂、不顯示於工作列/Alt+Tab）"
+        status: "pending"
+        files: ["ui/floating_button.py", "platform_api/window_flags.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-001"
+      - id: "TASK-002"
+        description: "拖曳移動與拖曳/點擊判定（4px 門檻）、位置持久化與螢幕越界修正、位置重置"
+        status: "pending"
+        files: ["ui/floating_button.py", "platform_api/window_flags.py", "core/storage.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-002, AC-003"
+      - id: "TASK-003"
+        description: "按鈕尺寸/透明度設定、懸停與點擊視覺回饋（可關閉）、未完成待辦徽章"
+        status: "pending"
+        files: ["ui/floating_button.py", "ui/theme.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-004"
+
+  - id: "FR-002"
+    title: "資訊面板"
+    status: "pending"
+    milestone: "M2"
+    tasks:
+      - id: "TASK-004"
+        description: "面板視窗與展開/收合流程（按鈕、關閉鈕、Esc）、面板內退出鈕、展開轉場動畫"
+        status: "pending"
+        files: ["ui/panel.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-005"
+      - id: "TASK-005"
+        description: "面板定位與邊界翻轉（上下左右）、固定寬度 + 最大高度 + 單一垂直捲動容器、螢幕組態變更重算"
+        status: "pending"
+        files: ["ui/panel.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-006, AC-009；需以 QScreen.availableGeometry 計算"
+      - id: "TASK-006"
+        description: "焦點策略：平時不搶焦點、展開後才取得焦點；不實作全域滑鼠 hook"
+        status: "pending"
+        files: ["ui/floating_button.py", "ui/panel.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-007, AC-008, AC-040（手動驗收）"
+
+  - id: "FR-003"
+    title: "卡片系統"
+    status: "pending"
+    milestone: "M2"
+    tasks:
+      - id: "TASK-007"
+        description: "卡片基底（標題列、收折箭頭、拖曳把手）、六張卡片註冊與順序/收折持久化"
+        status: "pending"
+        files: ["ui/cards/", "core/orders.py", "core/storage.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-010, AC-011"
+      - id: "TASK-008"
+        description: "卡片拖曳把手排序（避免與點擊/捲動衝突）"
+        status: "pending"
+        files: ["ui/cards/"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-011"
+
+  - id: "FR-004"
+    title: "時間資訊卡"
+    status: "pending"
+    milestone: "M2"
+    tasks:
+      - id: "TASK-009"
+        description: "時間/日期顯示（西元+星期、不顯示秒）、12/24 制切換與持久化、自動更新"
+        status: "pending"
+        files: ["ui/cards/clock.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-012, AC-013"
+
+  - id: "FR-005"
+    title: "常用網址捷徑卡"
+    status: "pending"
+    milestone: "M3"
+    tasks:
+      - id: "TASK-010"
+        description: "捷徑清單 CRUD、拖曳排序、網址正規化與輸入驗證"
+        status: "pending"
+        files: ["ui/cards/shortcuts.py", "core/shortcuts.py", "core/storage.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-014, AC-016"
+      - id: "TASK-011"
+        description: "以系統預設瀏覽器開啟（平台抽象）；開啟失敗僅卡片內非阻斷提示"
+        status: "pending"
+        files: ["platform_api/browser.py", "ui/cards/shortcuts.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-015（需手動驗收）"
+
+  - id: "FR-006"
+    title: "RSS 卡"
+    status: "pending"
+    milestone: "M6"
+    tasks:
+      - id: "TASK-012"
+        description: "多來源管理與設定（名稱/URL/啟用/排序）、更新間隔與每來源篇數"
+        status: "pending"
+        files: ["core/rss.py", "ui/cards/rss.py", "ui/settings_window.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-017"
+      - id: "TASK-013"
+        description: "背景抓取（httpx + feedparser，逾時/UA）、失敗隔離與錯誤顯示、手動重整、收合時暫停"
+        status: "pending"
+        files: ["core/rss.py", "ui/cards/rss.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-018, AC-019"
+
+  - id: "FR-007"
+    title: "系統狀態卡"
+    status: "pending"
+    milestone: "M4"
+    tasks:
+      - id: "TASK-014"
+        description: "psutil 背景查詢（CPU/記憶體/本機固定磁碟）、百分比+進度條、閾值變色"
+        status: "pending"
+        files: ["core/system.py", "ui/cards/system.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-020, AC-022"
+      - id: "TASK-015"
+        description: "更新頻率設定（1/2/5 秒）、收合時暫停輪詢、展開時立即刷新、單項失敗顯示 N/A"
+        status: "pending"
+        files: ["ui/cards/system.py", "core/system.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-021"
+
+  - id: "FR-008"
+    title: "本地筆記卡"
+    status: "pending"
+    milestone: "M5"
+    tasks:
+      - id: "TASK-016"
+        description: "筆記 CRUD、就地編輯、刪除二次確認、自動儲存（debounce 800ms/失焦）"
+        status: "pending"
+        files: ["ui/cards/notes.py", "core/storage.py", "core/models.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-023, AC-025"
+      - id: "TASK-017"
+        description: "即時搜尋（標題+內文、不分大小寫）與渲染上限 50 筆、清單更新節流"
+        status: "pending"
+        files: ["ui/cards/notes.py", "core/search.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-024"
+
+  - id: "FR-009"
+    title: "待辦清單卡"
+    status: "pending"
+    milestone: "M5"
+    tasks:
+      - id: "TASK-018"
+        description: "待辦建立/完成/取消完成/刪除、完成項下沉分區、完成時間排序"
+        status: "pending"
+        files: ["ui/cards/todos.py", "core/orders.py", "core/storage.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-026"
+      - id: "TASK-019"
+        description: "未完成區拖曳排序、隱藏/顯示完成項（持久化）、徽章數量同步"
+        status: "pending"
+        files: ["ui/cards/todos.py", "ui/floating_button.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-004, AC-027"
+
+  - id: "FR-010"
+    title: "設定視窗"
+    status: "pending"
+    milestone: "M3"
+    tasks:
+      - id: "TASK-020"
+        description: "獨立模態設定視窗（單一實例）、各設定項目、即時生效與持久化、非法值夾限"
+        status: "pending"
+        files: ["ui/settings_window.py", "core/settings.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-028"
+      - id: "TASK-032"
+        description: "定義並實作設定數值範圍與預設值（面板寬度 280–480、按鈕尺寸 32–96、透明度 0.3–1.0、按鈕與面板間距 8px、預設位置右上角距邊 24px），落實 FR-010.6 夾限"
+        status: "pending"
+        files: ["core/settings.py", "ui/settings_window.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 PRD 附錄 D D-001；範圍值屬實作決策，不改變需求"
+
+  - id: "FR-011"
+    title: "系統托盤"
+    status: "pending"
+    milestone: "M1"
+    tasks:
+      - id: "TASK-021"
+        description: "托盤圖示、右鍵選單（顯示/隱藏、設定、重新整理、開啟資料目錄、開啟記錄位置、關於、退出）、雙擊切換；托盤不可用時降級"
+        status: "pending"
+        files: ["ui/tray.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-029（需手動驗收）"
+      - id: "TASK-034"
+        description: "準備應用資源（托盤圖示、按鈕圖示、執行檔 icon）與 assets/ 目錄，並定義應用程式識別碼（py_assistant_desktop）與執行檔名稱"
+        status: "pending"
+        files: ["assets/", "app.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 PRD 附錄 D D-003、D-004（圖示需人工檢視）"
+
+  - id: "FR-012"
+    title: "開機自動啟動"
+    status: "pending"
+    milestone: "M7"
+    tasks:
+      - id: "TASK-022"
+        description: "使用者層級開機自啟（登錄檔/啟動資料夾）、開關即時生效、關閉時完整移除、開發/打包模式皆正確"
+        status: "pending"
+        files: ["platform_api/autostart.py", "ui/settings_window.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-030（需手動驗收）"
+
+  - id: "FR-013"
+    title: "單一實例"
+    status: "pending"
+    milestone: "M1"
+    tasks:
+      - id: "TASK-023"
+        description: "具名鎖確保單一實例；重複啟動時喚醒既有實例並退出新行程"
+        status: "pending"
+        files: ["platform_api/single_instance.py", "app.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-031（需手動驗收）"
+
+  - id: "FR-014"
+    title: "資料儲存"
+    status: "pending"
+    milestone: "M3"
+    tasks:
+      - id: "TASK-024"
+        description: "各資料檔 JSON 原子寫入、schema_version、缺檔初始化、損毀備份與重建、寫入失敗處理"
+        status: "pending"
+        files: ["core/storage.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-032"
+
+  - id: "FR-015"
+    title: "記錄與錯誤處理"
+    status: "pending"
+    milestone: "M7"
+    tasks:
+      - id: "TASK-025"
+        description: "輪替式 log、日誌層級設定、全域例外鉤子（不彈窗）、開啟記錄檔/資料目錄入口、錯誤雙路徑（卡片提示 + log）"
+        status: "pending"
+        files: ["core/logging_setup.py", "platform_api/paths.py", "ui/settings_window.py", "ui/tray.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 AC-033"
+
+  - id: "NFR-001"
+    title: "效能（閒置 CPU < 1% / 展開 < 5% / 記憶體 < 200MB / 啟動 < 3s）"
+    status: "pending"
+    milestone: "M8"
+    tasks:
+      - id: "TASK-026"
+        description: "效能量測與調校（閒置 CPU、展開 CPU、記憶體、打包後冷啟動）"
+        status: "pending"
+        files: []
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-036, AC-038, AC-039（需手動量測）"
+
+  - id: "NFR-005"
+    title: "不得阻塞 UI（網路與 psutil 於背景執行緒）"
+    status: "pending"
+    milestone: "M4"
+    tasks:
+      - id: "TASK-027"
+        description: "建立背景執行緒模型（QThreadPool + signal），RSS 與 psutil 全部走背景"
+        status: "pending"
+        files: ["ui/cards/rss.py", "ui/cards/system.py", "core/rss.py", "core/system.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-034（需手動驗收）"
+
+  - id: "NFR-006"
+    title: "跨平台架構（平台差異集中於 platform/）"
+    status: "pending"
+    milestone: "M1"
+    tasks:
+      - id: "TASK-028"
+        description: "建立 platform_api/ 抽象介面（window_flags/autostart/single_instance/browser/paths）並以 Windows 實作"
+        status: "pending"
+        files: ["platform_api/"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "架構檢查：core/ 不得 import 平台專屬模組"
+
+  - id: "NFR-008"
+    title: "多螢幕與高 DPI 正確性"
+    status: "pending"
+    milestone: "M2"
+    tasks:
+      - id: "TASK-029"
+        description: "高 DPI 政策設定與多螢幕定位驗證（100%–200% 縮放、混合 DPI）"
+        status: "pending"
+        files: ["app.py", "ui/panel.py", "ui/floating_button.py"]
+        verification:
+          status: "not_run"
+          commands: []
+          notes: "對應 AC-037（需手動驗收）"
+
+  - id: "NFR-011"
+    title: "可測試性（core/ 無 GUI 可單元測試；pytest + pytest-qt）"
+    status: "pending"
+    milestone: "M8"
+    tasks:
+      - id: "TASK-030"
+        description: "建立測試骨架與注入替身（fake fetcher / fake system provider），補齊單元與元件測試"
+        status: "pending"
+        files: ["tests/"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "測試不得連網、不得依賴機器真實負載"
+
+  - id: "NFR-002"
+    title: "效能（面板展開時 CPU < 5%）"
+    status: "pending"
+    milestone: "M8"
+    covered_by: ["TASK-026"]
+    tasks: []
+
+  - id: "NFR-003"
+    title: "記憶體常駐 < 200 MB"
+    status: "pending"
+    milestone: "M8"
+    covered_by: ["TASK-026"]
+    tasks: []
+
+  - id: "NFR-004"
+    title: "onedir 打包後冷啟動 < 3 秒"
+    status: "pending"
+    milestone: "M8"
+    covered_by: ["TASK-026"]
+    tasks: []
+
+  - id: "NFR-007"
+    title: "高 DPI（Windows 縮放 100%–200% 不模糊）"
+    status: "pending"
+    milestone: "M2"
+    covered_by: ["TASK-029"]
+    tasks: []
+
+  - id: "NFR-009"
+    title: "平台相容（Windows 10/11 x64、Python 3.11+）"
+    status: "pending"
+    milestone: "M1"
+    covered_by: ["TASK-031"]
+    tasks: []
+
+  - id: "NFR-010"
+    title: "依賴最小化（PySide6/psutil/feedparser/httpx/platformdirs + pytest/pytest-qt）"
+    status: "pending"
+    milestone: "M1"
+    tasks:
+      - id: "TASK-031"
+        description: "建立專案骨架與依賴宣告（pyproject.toml 或 requirements.txt、assets/、tests/ 佈局、執行進入點），並確認 feedparser 與 pytest-qt 已安裝"
+        status: "pending"
+        files: ["pyproject.toml", "requirements.txt", "app.py", "tests/", "assets/"]
+        verification:
+          status: "not_run"
+          commands: ["python -c \"import PySide6, psutil, feedparser, httpx, platformdirs\"", "pytest tests/"]
+          notes: "對應 AC-038；需確認 Python 3.11+ 與依賴可解析"
+
+  - id: "NFR-012"
+    title: "離線優雅降級"
+    status: "pending"
+    milestone: "M6"
+    covered_by: ["TASK-013"]
+    tasks: []
+
+  - id: "NFR-013"
+    title: "隱私（除 RSS 外不對外連線、無 telemetry）"
+    status: "pending"
+    milestone: "M6"
+    covered_by: ["TASK-013"]
+    tasks: []
+
+  - id: "NFR-014"
+    title: "不需系統管理員權限"
+    status: "pending"
+    milestone: "M7"
+    covered_by: ["TASK-022"]
+    tasks: []
+
+  - id: "NFR-015"
+    title: "韌性（單一功能失敗不得導致整體崩潰或無法啟動）"
+    status: "pending"
+    milestone: "M3"
+    covered_by: ["TASK-024", "TASK-025"]
+    tasks: []
+
+  - id: "NFR-016"
+    title: "資料安全（原子寫入 + 損毀備份）"
+    status: "pending"
+    milestone: "M3"
+    covered_by: ["TASK-024"]
+    tasks: []
+
+  - id: "NFR-017"
+    title: "資源節省（收合時暫停輪詢與定時抓取）"
+    status: "pending"
+    milestone: "M4"
+    covered_by: ["TASK-013", "TASK-015"]
+    tasks: []
+
+  - id: "NFR-018"
+    title: "可維護性（新增平台不得修改 core/ 邏輯）"
+    status: "pending"
+    milestone: "M1"
+    covered_by: ["TASK-028"]
+    tasks: []
+
+  # C-006（字串抽離）對應任務；C-006 為 PRD §8.4 的正式 ID。
+  - id: "C-006"
+    title: "介面文字為繁體中文但字串須抽離（保留 i18n 可能）"
+    status: "pending"
+    milestone: "M1"
+    tasks:
+      - id: "TASK-033"
+        description: "實作字串抽離機制（zh-TW 字串表模組），符合 C-006（僅抽離、不翻譯）"
+        status: "pending"
+        files: ["ui/strings.py"]
+        verification:
+          status: "not_run"
+          commands: ["pytest tests/"]
+          notes: "對應 PRD 附錄 D D-002"
+
+# PRD §4「額外目標與延伸功能」（X-001~X-008）的覆蓋對照。
+# 這些為 PRD 正式 ID，故可追溯；不另立重複任務。
+prd_coverage:
+  - id: "X-001"
+    title: "系統托盤"
+    covered_by_tasks: ["TASK-021"]
+    ac: ["AC-029"]
+  - id: "X-002"
+    title: "開機自動啟動"
+    covered_by_tasks: ["TASK-022"]
+    ac: ["AC-030"]
+  - id: "X-003"
+    title: "單一實例"
+    covered_by_tasks: ["TASK-023"]
+    ac: ["AC-031"]
+  - id: "X-004"
+    title: "獨立設定視窗"
+    covered_by_tasks: ["TASK-020"]
+    ac: ["AC-028"]
+  - id: "X-005"
+    title: "待辦數量徽章"
+    covered_by_tasks: ["TASK-003", "TASK-019"]
+    ac: ["AC-004"]
+  - id: "X-006"
+    title: "視覺回饋與動畫"
+    covered_by_tasks: ["TASK-003", "TASK-004"]
+    ac: ["AC-043", "AC-044"]
+  - id: "X-007"
+    title: "記錄檔與診斷"
+    covered_by_tasks: ["TASK-025"]
+    ac: ["AC-033"]
+  - id: "X-008"
+    title: "面板內退出程式"
+    covered_by_tasks: ["TASK-004"]
+    ac: ["AC-045"]
+
+# Build Agent 就緒性稽核發現（2026-09-28）。
+audit_findings:
+  - id: "AF-001"
+    severity: "blocking"
+    ref: "BLOCK-001"
+    title: "PRD §8.2 的 platform/ 目錄會遮蔽 Python 標準庫 platform 模組"
+    fix: "更名為 platform_api/（純內部命名，不涉及需求或外部行為）"
+    needs_user_approval: true
+    resolution: "已核准並修正於 PRD v1.1（附錄 B.5）"
+  - id: "AF-002"
+    severity: "should_fix"
+    title: "已核准需求缺少對應驗收條件（無法依 PRD §13.3 / AGENTS §15 判定完成）"
+    missing_ac_for: ["FR-001.6", "FR-001.7", "FR-001.9", "FR-002.8", "FR-002.9",
+                     "FR-004.5", "FR-008.8", "FR-008.9", "FR-009.7", "FR-010.6",
+                     "FR-011.2（開啟資料目錄/記錄位置/關於）", "FR-014.6", "FR-015.2",
+                     "FR-015.4", "FR-015.6"]
+    fix: "於 PRD §12 補上 AC-041~AC-055，僅補齊既有需求之驗收條件，不新增或變更需求"
+    needs_user_approval: true
+    resolution: "已核准並修正於 PRD v1.1（附錄 B.5）"
+  - id: "AF-003"
+    severity: "should_fix"
+    title: "設定數值範圍未定義（AC-028 無法驗證 FR-010.6）"
+    fix: "於 PRD 附錄 D 定義範圍與預設值（見 TASK-032）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-004"
+    severity: "should_fix"
+    title: "AC-019『面板收合期間不進行 RSS 抓取』與 FR-006.4 / FR-011.2 的手動重新整理衝突"
+    fix: "AC-019 限縮為『不進行定時抓取』，並明訂手動觸發（含托盤）不受暫停限制（附錄 D D-005）"
+    needs_user_approval: true
+    resolution: "已核准並修正於 PRD v1.1（附錄 B.5）"
+  - id: "AF-005"
+    severity: "should_fix"
+    title: "FR-013.2『帶到前景』未說明是否展開面板；FR-003.5 未定義新待辦插入位置；FR-008.5 未定義開啟既有筆記的互動"
+    fix: "於 PRD 附錄 D 明訂預設行為（D-006/D-007/D-008）"
+    needs_user_approval: true
+    resolution: "已核准並修正於 PRD v1.1（附錄 B.5）"
+  - id: "AF-006"
+    severity: "should_fix"
+    title: "FR-010.4 要求『模態』但 FR-010.1 允許由托盤開啟（面板可能已收合），母視窗未定義"
+    fix: "明訂為 application-modal 單一視窗、不強制指定母視窗；面板可見時以面板為母視窗（附錄 D D-009）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-007"
+    severity: "should_fix"
+    title: "PRD §8.2 未列出專案骨架檔案（pyproject/requirements、tests/、assets/、字串表）"
+    fix: "於 PRD §8.2 補列，並建立 TASK-031/TASK-033/TASK-034"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-008"
+    severity: "should_fix"
+    title: "progress.yaml 原先未覆蓋 NFR-002/003/004/007/009/010/012~018 與 X-001~X-008"
+    fix: "已於本次更新補齊（見 requirements 與 prd_coverage）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-009"
+    severity: "should_fix"
+    title: "feedparser 與 pytest-qt 尚未安裝；環境為 Anaconda base，恐污染"
+    fix: "實作前建立獨立 venv 並安裝依賴（TASK-031）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-010"
+    severity: "should_fix"
+    title: "PRD 原無『待確認事項』章節，實作細節預設值無處記錄"
+    fix: "於 PRD 新增附錄 D『實作決策與待確認預設值（可覆寫）』"
+    needs_user_approval: true
+    resolution: "已核准並修正於 PRD v1.1（附錄 B.5）"
+  - id: "AF-011"
+    severity: "minor"
+    title: "PRD §8.2 未定義背景工作注入介面（fetcher / system provider 的呼叫簽章），影響 NFR-011 可測試性"
+    fix: "於實作時定義 Protocol 介面並記錄於 handoff；不需修改需求"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-012"
+    severity: "minor"
+    title: "PRD §8.2 未列出 core/logging_setup.py，但 progress.yaml TASK-025 引用"
+    fix: "一併補列於 PRD §8.2"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-013"
+    severity: "minor"
+    title: "AC-029 未涵蓋托盤的『開啟資料目錄 / 開啟記錄檔位置 / 關於』"
+    fix: "擴充 AC-029（見 AF-002 的 AC 補齊）"
+    needs_user_approval: true
+    resolution: "已核准並修正於 PRD v1.1（附錄 B.5）"
+  - id: "AF-014"
+    severity: "minor"
+    title: ".corrupt-* 備份檔無清理機制，長期累積"
+    fix: "記錄為已知取捨；啟動時僅保留最近 5 份（附錄 D D-010）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-015"
+    severity: "minor"
+    title: "『本機固定磁碟』判定方式未定義（psutil 過濾規則）"
+    fix: "實作決策：psutil.disk_partitions(all=False) 並排除 fstype 含 cdrom/removable（附錄 D D-011）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-016"
+    severity: "minor"
+    title: "CPU 首次取樣需 warm-up，否則首值為 0；未記載"
+    fix: "實作決策：啟動時先呼叫一次 cpu_percent(interval=None) 丟棄首值（附錄 D D-012）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-017"
+    severity: "minor"
+    title: "12 小時制的 00:00 / 12:00 邊界顯示未定義"
+    fix: "實作決策：00:xx → 12:xx AM；12:xx → 12:xx PM（附錄 D D-013）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-018"
+    severity: "minor"
+    title: "開機自啟登錄值名稱、執行檔名稱、AppUserModelID 未定義"
+    fix: "實作決策：app id = py_assistant_desktop、登錄值同名；exe 名稱待確認（附錄 D D-004）"
+    needs_user_approval: true
+    resolution: "已核准並修正於 PRD v1.1（附錄 B.5）"
+  - id: "AF-019"
+    severity: "minor"
+    title: "高 DPI 政策未指定（Qt6 預設 PassThrough 是否足夠）"
+    fix: "實作決策：明示採用 PassThrough 並保留 HighDpiScaleFactorRoundingPolicy 覆寫點"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-020"
+    severity: "minor"
+    title: "筆記渲染上限 50 筆與待辦無上限，在大量資料下的面板捲動體驗未定義"
+    fix: "已知風險：待辦超過 200 筆時面板捲動較長；先依 FR-003.5 原樣實作，必要時再提案變更"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-021"
+    severity: "minor"
+    title: "AGENTS.md 啟動協定未要求檢視 PRD 附錄與 .harness 的覆蓋對照"
+    fix: "無需修改；handoff.yaml 已指引下一個 session 的讀取順序"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-022"
+    severity: "minor"
+    title: "『每次啟動面板預設收合』(FR-002.11) 與『顯示/隱藏面板』托盤項目需定義為同一狀態"
+    fix: "明訂托盤『顯示/隱藏面板』與按鈕 toggle 共用同一狀態（附錄 D D-014）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-023"
+    severity: "minor"
+    title: "面板『間距』(FR-002.3) 與『預設角落』(FR-001.6) 無數值"
+    fix: "已納入 TASK-032 與附錄 D D-001"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-024"
+    severity: "minor"
+    title: "FR-006.3『快取已過期』的判定基準（以請求時間或以成功更新時間）未定義"
+    fix: "實作決策：以最後成功更新時間 + 間隔為基準（附錄 D D-015）"
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+  - id: "AF-025"
+    severity: "minor"
+    title: "AGENTS.md 的 current_phase 列舉（discovery/planning/implementation/verification/blocked/complete）無法表達『規格已定稿但尚未開始實作』"
+    fix: >
+      不改 AGENTS.md；改以額外的 planning.status 子欄位表達（目前值 audit_done_pending_prd_v1_1），
+      current_phase 維持 planning，待核准後才切換為 implementation。
+    needs_user_approval: false
+    resolution: "已納入附錄 D 實作決策或已於本次稽核修正"
+
+blockers: []
+
+resolved_blockers:
+  - id: "BLOCK-001"
+    severity: "blocking"
+    title: "模組目錄 platform/ 會遮蔽 Python 標準庫 platform 模組"
+    detail: >
+      PRD §8.2 將平台抽象層命名為 platform/。當專案根目錄位於 sys.path 首位時，
+      import platform 會解析到本專案套件而非標準庫，導致依賴標準庫 platform 的套件失效。
+    evidence: >
+      實測：於含 platform/__init__.py 的目錄執行 python -m pytest -q，
+      立即以 AttributeError: module 'platform' has no attribute 'python_implementation' 崩潰；
+      Python 並主動提示該目錄應重新命名。dependency 掃描顯示 _pytest/terminal.py、
+      attrs、zmq、astropy、botocore 等大量套件皆 import platform。
+    impact: >
+      NFR-011 與 PRD §13 要求以 pytest 驗證；若不修正，M1 起即無法執行測試，
+      且每次測試或工具鏈升級都可能再度踩雷。
+    proposed_resolution: "將 platform/ 更名為 platform_api/"
+    requirement_ids: ["NFR-006", "NFR-011", "NFR-018"]
+    status: "resolved"
+    resolved_at: "2026-09-28"
+    resolution: >
+      使用者核准後，PRD v1.1 已將 platform/ 更名為 platform_api/（附錄 B.5 第 24 項），
+      並同步更新 NFR-006、§8.2 模組分層與 §14 M1。PRD 全文已無以 platform/ 作為套件路徑的引用。
+    blocks: []
+
+next_actions:
+  - "等待使用者指示開始實作（目前 implementation.status = not_started，尚未撰寫任何程式碼）。"
+  - "第一步：TASK-031 建立專案骨架與依賴宣告（pyproject.toml / requirements.txt、tests/、assets/），並建立專案專屬 venv 安裝 feedparser 與 pytest-qt。"
+  - "第二步：TASK-028 建立 platform_api/ 抽象層（window_flags/autostart/single_instance/browser/paths），嚴禁命名為 platform/。"
+  - "第三步：TASK-023 單一實例 → TASK-001~TASK-003 浮動按鈕 → TASK-021 托盤，完成 M1（AC-001/002/003/029/031）。"
+  - "每完成一項任務即更新本檔 status 與 verification，並同步更新 handoff.yaml；未通過驗證不得標記 done。"
