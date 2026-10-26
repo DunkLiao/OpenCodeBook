@@ -1,6 +1,6 @@
 # Context7 MCP 設定指南
 
-本指南說明如何在 Windows 上將 Context7 文件查詢 MCP 加入支援 MCP 的 AI agent CLI，供 agent 查詢更新的程式庫文件與範例。Context7 不是套件安裝器；它提供文件搜尋與查詢工具。各 CLI 的設定檔位置、驗證流程與重新載入方式可能不同，以下分成通用設定與 Codex 範例。
+本指南說明如何在 Windows 上將 Context7 文件查詢 MCP 加入支援 MCP 的 AI agent CLI，供 agent 查詢更新的程式庫文件與範例。Context7 不是套件安裝器；它提供文件搜尋與查詢工具。各 CLI 的設定檔位置、驗證流程與重新載入方式可能不同，以下分成通用設定，以及 Codex 與 OpenCode 的範例。
 
 ## 1. 安裝前準備
 
@@ -112,11 +112,71 @@ codex mcp list
 
 成功時，agent 會先解析程式庫識別名稱，再查詢文件內容。若只看到伺服器已登錄，仍需透過實際查詢確認連線及授權正常。
 
-## 5. 常見問題
+## 5. OpenCode 設定（V2）
+
+OpenCode V2 的全域設定檔位於 `%USERPROFILE%\.config\opencode\opencode.jsonc`。可直接用 CLI 登錄遠端 MCP：
+
+```powershell
+opencode mcp add context7 --url https://mcp.context7.com/mcp --global
+```
+
+設定檔會新增以下區塊：
+
+```jsonc
+"context7": {
+  "type": "remote",
+  "url": "https://mcp.context7.com/mcp"
+}
+```
+
+確認狀態：
+
+```powershell
+opencode mcp list
+```
+
+顯示 `connected` 代表已連線；顯示 `needs authentication` 代表需要授權；顯示 `disabled` 代表設定存在但未啟用。
+
+### OAuth 授權目前會失敗
+
+Context7 官方建議把 URL 改為 `/mcp/oauth` 後執行 `opencode mcp auth context7`。實測 OpenCode v2.1.4 在瀏覽器完成授權後仍會失敗：
+
+> The PKCE code verifier was provided but the code challenge was absent from the authorization request.
+
+授權伺服器沒有收到 PKCE 的 `code_challenge`，屬於用戶端與授權伺服器（Clerk）的相容性問題，重試通常會得到相同結果。改用不帶 OAuth 的 `/mcp` 端點即可匿名連線，工具功能正常，只是速率額度較低。
+
+### 使用 API key 提高額度
+
+先依第 3.1 節設定 `CONTEXT7_API_KEY` 使用者環境變數，再於設定檔加入 headers：
+
+```jsonc
+"context7": {
+  "type": "remote",
+  "url": "https://mcp.context7.com/mcp",
+  "headers": {
+    "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+  },
+  "oauth": false
+}
+```
+
+`{env:...}` 是 OpenCode 的環境變數插值語法，可避免把金鑰直接寫入設定檔；`"oauth": false` 則避免 OpenCode 再嘗試自動 OAuth。
+
+### 驗證
+
+重新載入 OpenCode 後執行 `opencode mcp list`，或在對話中輸入「用 Context7 查 React useState 用法」。成功時會先呼叫 `resolve-library-id` 再呼叫 `query-docs`，並回傳文件庫清單與程式碼範例。
+
+## 6. 常見問題
+
+### OpenCode 顯示 needs authentication 或 OAuth 授權失敗
+
+- 確認設定的 URL 是 `https://mcp.context7.com/mcp`，不是 `/mcp/oauth`。
+- 若出現 PKCE 相關錯誤，改回不帶 OAuth 的端點（見第 5 節）。
+- 執行 `opencode mcp logout context7` 清除失效憑證後再重試。
 
 ### Context7 工具沒有出現
 
-- 執行 `codex mcp list` 確認項目已登錄並啟用。
+- 執行 `codex mcp list` 確認項目已登錄並啟用；OpenCode 請執行 `opencode mcp list` 並確認狀態為 `connected`。
 - 完全重啟 Codex，然後查看 MCP 面板中的啟動錯誤。
 - 檢查 `config.toml` 的區塊名稱、URL、環境變數名稱拼寫，避免重複的 `[mcp_servers.context7]` 區塊。
 
