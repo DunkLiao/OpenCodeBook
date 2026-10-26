@@ -101,6 +101,9 @@
 | 文件 | 說明 |
 | --- | --- |
 | [`chrome devtools mcp/OpenCode_v2_Chrome_DevTools_MCP_Setup_Guide.md`](my_practice/chrome%20devtools%20mcp/OpenCode_v2_Chrome_DevTools_MCP_Setup_Guide.md) | Chrome DevTools MCP 設定指南 |
+| [`mcps/Context7-MCP-設定指南.md`](my_practice/mcps/Context7-MCP-設定指南.md) | Context7 文件查詢 MCP 設定與 API key 安全設定 |
+| [`mcps/GitHub-MCP-設定指南.md`](my_practice/mcps/GitHub-MCP-設定指南.md) | GitHub Remote MCP 與 Personal Access Token 設定 |
+| [`mcps/Playwright-MCP-設定指南.md`](my_practice/mcps/Playwright-MCP-設定指南.md) | Playwright MCP（stdio）設定與瀏覽器模式選項 |
 | [`Playwright mcp/OpenCode_V2_MCP_Global_Setup_Guide.md`](my_practice/Playwright%20mcp/OpenCode_V2_MCP_Global_Setup_Guide.md) | MCP 全域設定指南 |
 | [`Playwright mcp/OpenCode_V2_MCP_Timeout_Fix.md`](my_practice/Playwright%20mcp/OpenCode_V2_MCP_Timeout_Fix.md) | MCP 逾時問題排查與修正 |
 | [`Playwright mcp/note.md`](my_practice/Playwright%20mcp/note.md) | Playwright MCP 實作筆記 |
